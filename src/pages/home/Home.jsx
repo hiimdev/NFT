@@ -15,7 +15,7 @@ const Home = () => {
           <Button
           sx={{ margin: '0 auto', background: 'linear-gradient(93.06deg, rgb(255, 0, 199) 2.66%, rgb(255, 159, 251) 98.99%)', textTransform: 'initial', width: 250, height: 50, borderRadius: 24 }}
           >
-            <Link style={{ color: 'white', fontWeight: 'bold', textDecoration:'none' }} to='/swap'>Get Started</Link>
+            <Link style={{ color: 'white', fontWeight: 'bold', textDecoration:'none', fontSize: 20 }} to='/swap'>Get Started</Link>
           </Button>
         </Grid>
       </Grid>

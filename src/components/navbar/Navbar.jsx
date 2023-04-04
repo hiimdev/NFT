@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,13 +19,24 @@ import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { Link } from "react-router-dom";
+import ConnectButton from '../ConnectButton';
+import { ethers } from 'ethers'
+import { useSelector, useDispatch } from 'react-redux'
+import { connect } from '../../redux/connectSlice';
 
 const drawerWidth = 240;
 const navItems = ['swap', 'tokens', 'nfts', 'pools'];
 
 const Navbar = (props) => {
-  const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [provider, setProvider] = useState(undefined)
+  const [signerAddress, setSignerAddress] = useState(undefined)
+
+  const [signer, setSigner] = useState(undefined)
+
+  const isConnected = useSelector((state) => state.connect.connected)
+  const address = useSelector((state) => state.connect.address)
+  const dispatch = useDispatch()
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -78,6 +89,35 @@ const Navbar = (props) => {
     setNetwork(event.target.value);
   };
 
+  // const container = window !== undefined ? () => window().document.body : undefined;
+
+  useEffect(() => {
+    const onLoad = async () => {
+      const { ethereum } = window
+      const provider = await new ethers.providers.Web3Provider(ethereum)
+      setProvider(provider)
+    }
+    onLoad()
+  }, [])
+
+  const getSigner = async (provider) => {
+    provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    setSigner(signer)
+  }
+
+  const getWalletAddress = () => {
+    signer.getAddress()
+      .then(addrr => {
+        setSignerAddress(addrr)
+      })
+    }
+    
+  if (signer !== undefined) {
+    getWalletAddress()
+    dispatch(connect(signerAddress))
+  }
+
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
@@ -112,13 +152,15 @@ const Navbar = (props) => {
         <MenuItem value={30}>BNB Chain</MenuItem>
       </Select>
       <Button sx={{ color: '#FF15CE', fontWeight: 'bold', background: '#FFD5EC', marginLeft: 2 }}>
-        Connect
+        <ConnectButton
+          provider={provider}
+          isConnected={isConnected}
+          signerAddress={address}
+          getSigner={getSigner}
+        />
       </Button>
     </Box>
   );
-
-  const container = window !== undefined ? () => window().document.body : undefined;
-
 
   return (
     <Box sx={{ display: 'flex'}}>
@@ -141,7 +183,7 @@ const Navbar = (props) => {
               <Link style={{ color: '#69728E', fontWeight: 'bold', textDecoration:'none' }} to='/'>LOGO</Link>
             </Button>
             {navItems.map((item) => (
-              <Button>
+              <Button key={item}>
                 <Link style={{ color: '#69728E', fontWeight: 'bold', textDecoration:'none' }} to={item}>{item}</Link>
               </Button>
             ))}
@@ -156,7 +198,7 @@ const Navbar = (props) => {
             />
           </Search>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Select
+            {/* <Select
               value={network}
               onChange={handleChangeNetwork}
               displayEmpty  
@@ -171,16 +213,19 @@ const Navbar = (props) => {
               <MenuItem value={30}>Arbitrum</MenuItem>
               <MenuItem value={30}>Celo</MenuItem>
               <MenuItem value={30}>BNB Chain</MenuItem>
-            </Select>
-            <Button sx={{ color: '#FF15CE', fontWeight: 'bold', background: '#FFD5EC', marginLeft: 2 }}>
-              Connect
-            </Button>
+            </Select> */}
+              <ConnectButton
+              provider={provider}
+              isConnected={isConnected}
+              signerAddress={address}
+              getSigner={getSigner}
+              />
           </Box>
         </Toolbar>
       </AppBar>
       <Box component="nav">
         <Drawer
-          container={container}
+          // container={container}
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
