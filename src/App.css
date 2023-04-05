@@ -1,3 +1,8 @@
+button {
+  border: none;
+  outline: none;
+}
+
 .swap {
     text-align: center;
     background-color: #e3eef3;
@@ -52,20 +57,17 @@
 
 /******************************************************************************/
 /* Swap Container */
-.appBody {
-  height: 100%;
-  padding-top: 80px;
-}
 
 .swapContainer {
-  background-color: rgb(203, 231, 240);
+  /* position: relative; */
+  /* background-color: rgb(203, 231, 240); */
   width: 440px;
-  height: 350px;
   margin: 0 auto;
   top: 50%;
   border-radius: 24px;
   border: 1px solid #fff;
   padding: 6px;
+  border: 1px solid rgb(210, 217, 238);
 }
 
 .swapHeader {
@@ -79,8 +81,14 @@
 }
 
 .gearContainer {
+  color: #645151;
   float: right;
-  font-size: 22px
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.gearContainer:hover {
+  color: #bfb1b1;
 }
 
 /******************************************************************************/
@@ -117,11 +125,11 @@
 .tokenContainer {
   text-align: right;
 }
-.tokenName {
+/* .tokenName {
   font-size: 28px;
   display: block;
   color: #000;
-}
+} */
 .balanceContainer {
   display: block;
 }
@@ -167,13 +175,17 @@ input[type=number] {
   cursor: pointer
 }
 
+.swapButton:hover {
+  background-color: #eb67a4;
+}
+
 /******************************************************************************/
 /* Config Modal */
 
 .modaly {
   position: fixed;
   left: 0;
-  top: 0;
+  top: -142px;
   right: -110px;
   bottom: 0;
   display: flex;
@@ -183,7 +195,7 @@ input[type=number] {
   z-index: 9999;
 }
 
-.modal-content {
+.modalContent {
   background-color: #fff;
   width: 300px !important;
   padding: 20px;
@@ -216,4 +228,105 @@ input[type=number] {
 .inputFieldUnitsContainer {
   padding-left: 0px !important;
   padding-top: 14px;
+}
+
+
+/******************************************************************************/
+/* Config Modal Token */
+
+.swapbox_select {
+  width: 50%;
+  float: left;
+}
+.swapbox{
+  overflow: auto;
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 20px;
+}
+.token_select{
+  width: 150px;
+  background-color: #dd2f81;
+  padding:5px 0;
+  margin: 0 20px;
+  float: right;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.token_selected{
+  width: 150px;
+  /* background-color: #dd2f81; */
+  padding:5px 0;
+  margin: 0 20px;
+  float: right;
+  border-radius: 10px;
+  /* color: #fff; */
+}
+
+.token_select:hover{
+  cursor: pointer;
+  background-color: #eb67a4;
+}
+.token_row{
+  padding: 5px 10px;
+}
+.token_row:hover{
+  background-color: #e4e4e4;
+  cursor: pointer;
+}
+.gas_estimate_label{
+  padding:5px;
+}
+
+.modal {
+  margin-top: 100px;
+}
+
+.modal-content {
+  border-radius: 34px !important;
+  overflow: hidden;
+}
+
+.modal-body2{
+  margin-top: 20px;
+  padding: 0 20px;
+  height: 300px;
+  overflow: auto;   
+}
+
+.close {
+  font-size: 40px;
+}
+
+.containerToken {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  cursor: pointer;
+}
+
+.wrapName {
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.tokenImg {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.tokenName {
+  font-size: 16px;
+  color: black
+}
+
+.tokenSymbol {
+  font-size: 12px;
+  color: rgb(118, 110, 110)
 }

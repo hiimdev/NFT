@@ -2,7 +2,7 @@ import React from 'react'
 
 const ConnectButton = props => {
   const { isConnected, signerAddress, getSigner, provider } = props
-  const displayAddress = `${signerAddress?.substring(0,10)}...`
+  const displayAddress = `${signerAddress?.substring(0,15)}...`
 
   return (
     <>
