@@ -121,7 +121,7 @@ const Navbar = (props) => {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        <Link to='/' style={{ color: '#69728E', fontWeight: 'bold', textDecoration:'none' }}>LOGO</Link>
+        <Link to='/' style={{ color: '#69728E', fontWeight: 'bold', textDecoration:'none' }}>Home</Link>
       </Typography>
       <Divider />
       <List>
@@ -180,7 +180,7 @@ const Navbar = (props) => {
             <Button
               sx={{ display: { xs: 'none', sm: 'block'} }}
             >
-              <Link style={{ color: '#69728E', fontWeight: 'bold', textDecoration:'none' }} to='/'>LOGO</Link>
+              <Link style={{ color: '#69728E', fontWeight: 'bold', textDecoration:'none' }} to='/'>Home</Link>
             </Button>
             {navItems.map((item) => (
               <Button key={item}>

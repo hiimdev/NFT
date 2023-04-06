@@ -7,6 +7,8 @@ import { connect } from '../../redux/connectSlice';
 import { useSelector, useDispatch } from 'react-redux';
 
 const qs = require('qs')
+const { default: BigNumber } = require('bignumber.js');
+const Web3 = require('web3');
 
 const Swap = () => {
   const [provider, setProvider] = useState(undefined)
@@ -16,12 +18,15 @@ const Swap = () => {
   const [slippageAmount, setSlippageAmount] = useState(2)
   const [deadlineMinutes, setDeadlineMinutes] = useState(10)
   const [showModal, setShowModal] = useState(undefined)
-  const [valueSelectTo, setValueSelectTo] = useState()
+  const [price, setPrice] = useState()
+  const [quote, setQuote] = useState()
   const [tokenData, setTokenData] = useState()
+  const [listTokenSearch, setListTokenSearch] = useState()
   const [currentTradeFrom, setCurrentTradeFrom] = useState(null)
   const [currentTradeTo, setCurrentTradeTo] = useState(null)
   const [valueGas, setValueGas] = useState(null)
   const [side, setSide] = useState('')
+  const [valueFrom, setValueFrom] = useState()
 
   const isConnected = useSelector((state) => state.connect.connected)
   const dispatch = useDispatch()
@@ -57,6 +62,7 @@ const Swap = () => {
       try {
         const response = await axios.get('https://tokens.coingecko.com/uniswap/all.json');
         setTokenData(response.data.tokens)
+        setListTokenSearch(response.data.tokens)
       }
       catch (error) {
         console.log(error);
@@ -79,9 +85,16 @@ const Swap = () => {
     }
   }
 
+  const handleChangeInputFrom = (e) => {
+    setValueFrom(e.target.value)
+    if (e.target.value === '') {
+      setPrice(0)
+    }
+  }
+
   const getPrice = async () => {
     if (!currentTradeFrom || !currentTradeTo || !document.getElementById("from_amount").value) return;
-    let amount = Number(document.getElementById("from_amount").value * 10 ** currentTradeFrom.decimals);
+    let amount = Number(valueFrom * 10 ** currentTradeFrom.decimals);
   
     const params = {
       sellToken: currentTradeFrom.address,
@@ -92,12 +105,73 @@ const Swap = () => {
     try {
       const response = await axios.get(`https://api.0x.org/swap/v1/price?${qs.stringify(params)}`);
       const swapPriceJSON = response.data;
-      setValueSelectTo(swapPriceJSON.buyAmount / (10 ** currentTradeTo.decimals))
+      setPrice(swapPriceJSON.buyAmount / (10 ** currentTradeTo.decimals))
       setValueGas(swapPriceJSON.estimatedGas)
     }
     catch (error) {
       console.log(error);
     } 
+  }
+
+  const getQuote = async (account) => {
+    if (!currentTradeFrom || !currentTradeTo || !document.getElementById("from_amount").value) return;
+    let amount = Number(valueFrom * 10 ** currentTradeFrom.decimals);
+  
+    const params = {
+      buyToken: currentTradeTo.address,
+      sellToken: currentTradeFrom.address,
+      sellAmount: amount,
+      takerAddress: account,
+    }
+  
+    // Fetch the swap quote.
+      const response = await axios.get(`https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`);
+      const swapQuoteJSON = response.data;
+      console.log(response.data)
+      setQuote(swapQuoteJSON.buyAmount / (10 ** currentTradeTo.decimals))
+      setValueGas(swapQuoteJSON.estimatedGas)
+    
+      return swapQuoteJSON
+  }
+
+  const trySwap = async () => {
+    const erc20abi= [{ "inputs": [ { "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "symbol", "type": "string" }, { "internalType": "uint256", "name": "max_supply", "type": "uint256" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" } ], "name": "allowance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "approve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" } ], "name": "balanceOf", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "burn", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "burnFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [ { "internalType": "uint8", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "subtractedValue", "type": "uint256" } ], "name": "decreaseAllowance", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "addedValue", "type": "uint256" } ], "name": "increaseAllowance", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "name", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transfer", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transferFrom", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }]
+  
+    // Only work if MetaMask is connect
+    // Connecting to Ethereum: Metamask
+    const web3 = new Web3(Web3.givenProvider);
+  
+    // The address, if any, of the most recently used account that the caller is permitted to access
+    let accounts = await window.ethereum.request({ method: "eth_accounts" });
+    let takerAddress = accounts[0];
+  
+    const swapQuoteJSON = await getQuote(takerAddress);
+  
+    // Set Token Allowance
+    // Set up approval amount
+    const fromTokenAddress = currentTradeFrom.address;
+    const maxApproval = new BigNumber(2).pow(256).minus(1);
+    const ERC20TokenContract = new web3.eth.Contract(erc20abi, fromTokenAddress);
+  
+    // Grant the allowance target an allowance to spend our tokens.
+    const tx = await ERC20TokenContract.methods.approve(
+        swapQuoteJSON.allowanceTarget,
+        maxApproval,
+    )
+    .send({ from: takerAddress })
+    .then(tx => {
+        console.log("tx: ", tx)
+    });
+  }
+  
+  // Search Token
+  const handleChangeSearchInput = (e) => {
+    const timer = setTimeout(() => {
+      const tokenFilter = tokenData.filter((token) => token.symbol.toLowerCase().includes(e.target.value.trim().toLowerCase()) || token.name.toLowerCase().includes(e.target.value.trim().toLowerCase()))
+      setListTokenSearch(tokenFilter)       
+    }, 300)
+
+    return timer
   }
 
   return (
@@ -121,7 +195,7 @@ const Swap = () => {
         <div className="swapBody">
           <div className="swapbox">
             <div className="swapbox_select">
-              <input onBlur={() => getPrice()} type='number' className="number form-control" placeholder="0" id="from_amount" />
+              <input onChange={(e) => handleChangeInputFrom(e)} onBlur={() => getPrice()} type='number' className="number form-control" placeholder="0" id="from_amount" />
             </div>
             <button onClick={() => boxSelect('from')} type="button" className={currentTradeFrom ? "swapbox_select token_selected" : "swapbox_select token_select"} id="to_token_select" data-toggle="modal" data-target="#modalSelectToken">
             {currentTradeFrom
@@ -141,7 +215,7 @@ const Swap = () => {
           </div>
           <div className="swapbox">
               <div className="swapbox_select">
-                  <input value={valueSelectTo} type='number' className="number form-control" placeholder="0" id="to_amount" />
+                  <input value={price} type='number' className="number form-control" placeholder="0" id="to_amount" />
               </div>
               <button onClick={() => boxSelect('to')} type="button" className={currentTradeTo ? "swapbox_select token_selected" : "swapbox_select token_select"} id="to_token_select" data-toggle="modal" data-target="#modalSelectToken">
               {currentTradeTo
@@ -163,6 +237,7 @@ const Swap = () => {
           <div className="swapButtonContainer">
             {isConnected ? (
               <div
+                onClick={() => trySwap()}
                 className="swapButton"
               >
                 Swap
@@ -186,10 +261,13 @@ const Swap = () => {
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
+              <div className="input-group flex-nowrap" style={{ width: '80%', margin: '0 auto 20px' }}>
+                <input onChange={(e) => handleChangeSearchInput(e)} type="text" className="form-control" placeholder="Search name token" aria-label="Tokenname" aria-describedby="addon-wrapping" />
+              </div>
               <div className="modal-body2">
                 {
-                  tokenData &&
-                  tokenData.map((token, i) => (
+                  listTokenSearch &&
+                  listTokenSearch.map((token, i) => (
                     <div onClick={() => selectToken(token)} key={token.logoURI} className='containerToken' data-dismiss="modal" aria-label="Close">
                       <img className='tokenImg' src={token.logoURI} alt={token.symbol} />
                       <div className='wrapName'>
