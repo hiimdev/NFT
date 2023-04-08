@@ -40,6 +40,10 @@ const Swap = () => {
   }, [])
 
   const getSigner = async provider => {
+    if (!window.ethereum) {
+      alert('MetaMask not detected. Please install MetaMask first.');
+      return;
+    }
     provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     setSigner(signer)
@@ -77,12 +81,14 @@ const Swap = () => {
   }
 
   const selectToken = (token) => {
+    setListTokenSearch(tokenData)
     if (side === 'from') {
       setCurrentTradeFrom(token)
     }
     if (side === 'to') {
       setCurrentTradeTo(token)
     }
+    document.getElementById('searchInputToken').value = ''
   }
 
   const handleChangeInputFrom = (e) => {
@@ -168,7 +174,7 @@ const Swap = () => {
   const handleChangeSearchInput = (e) => {
     const timer = setTimeout(() => {
       const tokenFilter = tokenData.filter((token) => token.symbol.toLowerCase().includes(e.target.value.trim().toLowerCase()) || token.name.toLowerCase().includes(e.target.value.trim().toLowerCase()))
-      setListTokenSearch(tokenFilter)       
+      setListTokenSearch(tokenFilter)
     }, 300)
 
     return timer
@@ -254,7 +260,7 @@ const Swap = () => {
         </div>
         <div className="modal fade" id="modalSelectToken" tabIndex="-1" role="dialog" aria-labelledby="modalSelectTokenLabel" aria-hidden="true">
           <div className="modal-dialog" role="document">
-            <div className="modal-content">
+            <div className="modal-content mt-0">
               <div className="modal-header">
                 <h5 className="modal-title" id="modalSelectTokenLabel">Select a token</h5>
                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
@@ -262,7 +268,7 @@ const Swap = () => {
                 </button>
               </div>
               <div className="input-group flex-nowrap" style={{ width: '80%', margin: '0 auto 20px' }}>
-                <input onChange={(e) => handleChangeSearchInput(e)} type="text" className="form-control" placeholder="Search name token" aria-label="Tokenname" aria-describedby="addon-wrapping" />
+                <input id='searchInputToken' onChange={(e) => handleChangeSearchInput(e)} type="text" className="form-control" placeholder="Search name token" aria-label="Tokenname" aria-describedby="addon-wrapping" />
               </div>
               <div className="modal-body2">
                 {

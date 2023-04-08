@@ -101,6 +101,10 @@ const Navbar = (props) => {
   }, [])
 
   const getSigner = async (provider) => {
+    if (!window.ethereum) {
+      alert('MetaMask not detected. Please install MetaMask first.');
+      return;
+    }
     provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     setSigner(signer)
@@ -135,7 +139,7 @@ const Navbar = (props) => {
           </ListItem>
         ))}
       </List>
-      <Select
+      {/* <Select
         value={network}
         onChange={handleChangeNetwork}
         displayEmpty  
@@ -150,15 +154,15 @@ const Navbar = (props) => {
         <MenuItem value={30}>Arbitrum</MenuItem>
         <MenuItem value={30}>Celo</MenuItem>
         <MenuItem value={30}>BNB Chain</MenuItem>
-      </Select>
-      <Button sx={{ color: '#FF15CE', fontWeight: 'bold', background: '#FFD5EC', marginLeft: 2 }}>
+      </Select> */}
+      {/* <button sx={{ color: '#FF15CE', fontWeight: 'bold', background: '#FFD5EC', marginLeft: 2 }}> */}
         <ConnectButton
           provider={provider}
           isConnected={isConnected}
           signerAddress={address}
           getSigner={getSigner}
         />
-      </Button>
+      {/* </button> */}
     </Box>
   );
 

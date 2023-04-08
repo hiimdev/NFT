@@ -25,9 +25,10 @@ button {
 .buttonContainer {
   background-color: #ecb9e1 !important;
   padding: 5px 10px;
-  border-radius: 16px;
+  border-radius: 6px;
   display: inline-block;
   cursor: pointer;
+  color: rgb(213, 0, 102) !important;
 }
 
 .buttonContainerTop {
@@ -36,9 +37,10 @@ button {
 
 .connectButton {
   background-color: #ecb9e1 !important;
-  border-radius: 16px !important;
+  border-radius: 6px !important;
   border: 1px solid #fff !important;
   color: rgb(213, 0, 102) !important;
+  font-weight: 600 !important;
 }
 
 .connectButtonContainer {
@@ -185,7 +187,7 @@ input[type=number] {
 .modaly {
   position: fixed;
   left: 0;
-  top: -142px;
+  top: -129px;
   right: -110px;
   bottom: 0;
   display: flex;
@@ -198,8 +200,8 @@ input[type=number] {
 .modalContent {
   background-color: #fff;
   width: 300px !important;
-  padding: 20px;
-  background-color: rgb(237, 238, 242) !important;
+  padding: 30px;
+  background-color: rgb(223 225 232) !important;
   border: 1px solid rgb(206, 208, 217) !important;
   border-radius: 12px !important;
 }
@@ -256,12 +258,10 @@ input[type=number] {
 
 .token_selected{
   width: 150px;
-  /* background-color: #dd2f81; */
   padding:5px 0;
   margin: 0 20px;
   float: right;
   border-radius: 10px;
-  /* color: #fff; */
 }
 
 .token_select:hover{
@@ -279,13 +279,23 @@ input[type=number] {
   padding:5px;
 }
 
-.modal {
+#modalSelectToken {
   margin-top: 100px;
+}
+
+.modalContentInfo {
+  background-color: #fff;
+  border-radius: 34px !important;
+  color: #484444;
+  padding: 20px;
+  margin-bottom: 50%;
 }
 
 .modal-content {
   border-radius: 34px !important;
   overflow: hidden;
+  min-width: 600px !important;
+  margin-top: 100px;
 }
 
 .modal-body2{
@@ -329,4 +339,20 @@ input[type=number] {
 .tokenSymbol {
   font-size: 12px;
   color: rgb(118, 110, 110)
+}
+
+
+ .btnLogout {
+  background-color: #ecb9e1;
+  color: #fff;
+  padding: 7px 10px;
+  border-radius: 6px;
+  color: rgb(213, 0, 102);
+  border: 1px solid #fff;
+  font-weight: 600;
+}
+
+.btnLogout:hover {
+  border-color: rgb(213, 0, 102);
+  background-color: #fff;
 }
