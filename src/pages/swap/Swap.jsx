@@ -127,13 +127,13 @@ const Swap = () => {
       buyToken: currentTradeTo.address,
       sellToken: currentTradeFrom.address,
       sellAmount: amount,
-      takerAddress: account,
+      // takerAddress: account,
     }
   
     // Fetch the swap quote.
       const response = await axios.get(`https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`);
       const swapQuoteJSON = response.data;
-      console.log(response.data)
+      console.log(response)
       setQuote(swapQuoteJSON.buyAmount / (10 ** currentTradeTo.decimals))
       setValueGas(swapQuoteJSON.estimatedGas)
     
@@ -150,19 +150,23 @@ const Swap = () => {
     // The address, if any, of the most recently used account that the caller is permitted to access
     let accounts = await window.ethereum.request({ method: "eth_accounts" });
     let takerAddress = accounts[0];
+    // console.log(takerAddress)
+
+     console.log(await web3.eth.net.getId())
   
     const swapQuoteJSON = await getQuote(takerAddress);
-  
+    console.log(swapQuoteJSON)
     // Set Token Allowance
     // Set up approval amount
-    const fromTokenAddress = currentTradeFrom.address;
-    const maxApproval = new BigNumber(2).pow(256).minus(1);
-    const ERC20TokenContract = new web3.eth.Contract(erc20abi, fromTokenAddress);
-  
+    // const fromTokenAddress = currentTradeFrom.address;
+    // const maxApproval = new BigNumber(2).pow(256).minus(1);
+    const ERC20TokenContract = new web3.eth.Contract(erc20abi, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48');
+    const a = await ERC20TokenContract.methods.balanceOf('0x8fF7a8Bc989ed1c9038c5b2e8861133d24788fE4').call()
+    console.log(a);
     // Grant the allowance target an allowance to spend our tokens.
-    const tx = await ERC20TokenContract.methods.approve(
-        swapQuoteJSON.allowanceTarget,
-        maxApproval,
+    const tx = await ERC20TokenContract.methods.transfer(
+        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        '10000',
     )
     .send({ from: takerAddress })
     .then(tx => {

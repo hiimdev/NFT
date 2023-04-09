@@ -356,3 +356,11 @@ input[type=number] {
   border-color: rgb(213, 0, 102);
   background-color: #fff;
 }
+
+.netWork {
+  margin-right: 20px;
+  border: 1px solid rgb(213, 0, 102);
+  color: #dd2f81;
+  padding: 3px 15px;
+  border-radius: 10px;
+}

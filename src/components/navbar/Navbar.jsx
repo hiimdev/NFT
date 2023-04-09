@@ -23,6 +23,7 @@ import ConnectButton from '../ConnectButton';
 import { ethers } from 'ethers'
 import { useSelector, useDispatch } from 'react-redux'
 import { connect } from '../../redux/connectSlice';
+import web3 from 'web3';
 
 const drawerWidth = 240;
 const navItems = ['swap', 'tokens', 'nfts', 'pools'];
@@ -30,9 +31,9 @@ const navItems = ['swap', 'tokens', 'nfts', 'pools'];
 const Navbar = (props) => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [provider, setProvider] = useState(undefined)
-  const [signerAddress, setSignerAddress] = useState(undefined)
-
   const [signer, setSigner] = useState(undefined)
+  const [signerAddress, setSignerAddress] = useState(undefined)
+  const [balance, setBalance] = useState(0);
 
   const isConnected = useSelector((state) => state.connect.connected)
   const address = useSelector((state) => state.connect.address)
@@ -52,7 +53,6 @@ const Navbar = (props) => {
     '&:hover': {
       borderColor: '#3e62df',
     },
-    marginRight: '20rem',
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(3),
@@ -84,11 +84,7 @@ const Navbar = (props) => {
     },
   }));
 
-  const [network, setNetwork] = React.useState('');
-  const handleChangeNetwork = (event) => {
-    setNetwork(event.target.value);
-  };
-
+  const [network, setNetwork] = React.useState('Ethereum');
   // const container = window !== undefined ? () => window().document.body : undefined;
 
   useEffect(() => {
@@ -115,10 +111,48 @@ const Navbar = (props) => {
       .then(addrr => {
         setSignerAddress(addrr)
       })
+  }
+
+  const getBalance = async () => {
+    // Tạo instance của Web3
+    const Web3 = new web3(window.ethereum);
+    // console.log(Web3.eth.getChainId())
+
+    // Lấy số dư của tài khoản hiện tại
+    const balance = await Web3.eth.getBalance(signerAddress);
+
+    // Chuyển đổi đơn vị từ wei sang ether và cập nhật state
+    setBalance(Web3.utils.fromWei(balance, 'ether'));
+  };
+
+  const getNetWork = async () => {
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId === '0x1') {
+      setNetwork('Ethereum')
+    } else {
+      setNetwork('Wrong network')
     }
+
+    window.ethereum.on('chainChanged', (chainId) => {
+      if (chainId === '0x1') {
+        setNetwork('Ethereum')
+      } else {
+        setNetwork('Wrong network')
+      }
+    });
+  }
+
+  window.ethereum.on('accountsChanged', () => {
+    if (signer !== undefined) {
+      getWalletAddress()
+      getBalance()
+    }
+  });
     
   if (signer !== undefined) {
     getWalletAddress()
+    getBalance()
+    getNetWork()
     dispatch(connect(signerAddress))
   }
 
@@ -139,30 +173,13 @@ const Navbar = (props) => {
           </ListItem>
         ))}
       </List>
-      {/* <Select
-        value={network}
-        onChange={handleChangeNetwork}
-        displayEmpty  
-        inputProps={{ 'aria-label': 'Without label' }}
-        sx={{ color: '#69728E' }}
-      >
-        <MenuItem value="">
-          <em>Ethereum</em>
-        </MenuItem>
-        <MenuItem value={10}>Polygon</MenuItem>
-        <MenuItem value={20}>Optimism</MenuItem>
-        <MenuItem value={30}>Arbitrum</MenuItem>
-        <MenuItem value={30}>Celo</MenuItem>
-        <MenuItem value={30}>BNB Chain</MenuItem>
-      </Select> */}
-      {/* <button sx={{ color: '#FF15CE', fontWeight: 'bold', background: '#FFD5EC', marginLeft: 2 }}> */}
+        <span style={{ marginBottom: 20 }} className='netWork'>{network}</span>
         <ConnectButton
           provider={provider}
           isConnected={isConnected}
           signerAddress={address}
           getSigner={getSigner}
         />
-      {/* </button> */}
     </Box>
   );
 
@@ -192,7 +209,7 @@ const Navbar = (props) => {
               </Button>
             ))}
           </Box>
-          <Search>
+          <Search sx={{ display: { xs: 'flex', sm: 'none', md: 'none', lg: 'flex' } }}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -201,28 +218,14 @@ const Navbar = (props) => {
               inputProps={{ 'aria-label': 'search' }}
             />
           </Search>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* <Select
-              value={network}
-              onChange={handleChangeNetwork}
-              displayEmpty  
-              inputProps={{ 'aria-label': 'Without label' }}
-              sx={{ color: '#69728E' }}
-            >
-              <MenuItem value="">
-                <em>Ethereum</em>
-              </MenuItem>
-              <MenuItem value={10}>Polygon</MenuItem>
-              <MenuItem value={20}>Optimism</MenuItem>
-              <MenuItem value={30}>Arbitrum</MenuItem>
-              <MenuItem value={30}>Celo</MenuItem>
-              <MenuItem value={30}>BNB Chain</MenuItem>
-            </Select> */}
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
+              <span className='netWork'>{network}</span>
               <ConnectButton
               provider={provider}
               isConnected={isConnected}
               signerAddress={address}
               getSigner={getSigner}
+              balance={balance}
               />
           </Box>
         </Toolbar>
@@ -237,7 +240,7 @@ const Navbar = (props) => {
             keepMounted: true
           }}
           sx={{
-            display: { xs: 'block', sm: 'none' },
+            display: { xs: 'block', md: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
           }}
         >
