@@ -5,6 +5,7 @@ import axios from 'axios';
 import ConfigModal from '../../components/ConfigModal';
 import { connect } from '../../redux/connectSlice';
 import { useSelector, useDispatch } from 'react-redux';
+import erc20abi from '../../assets/abi.json'
 
 const qs = require('qs')
 const { default: BigNumber } = require('bignumber.js');
@@ -20,13 +21,13 @@ const Swap = () => {
   const [showModal, setShowModal] = useState(undefined)
   const [price, setPrice] = useState()
   const [quote, setQuote] = useState()
-  const [tokenData, setTokenData] = useState()
-  const [listTokenSearch, setListTokenSearch] = useState()
-  const [currentTradeFrom, setCurrentTradeFrom] = useState(null)
-  const [currentTradeTo, setCurrentTradeTo] = useState(null)
   const [valueGas, setValueGas] = useState(null)
   const [side, setSide] = useState('')
   const [valueFrom, setValueFrom] = useState()
+  const [currentTradeFrom, setCurrentTradeFrom] = useState('')
+  const [currentTradeTo, setCurrentTradeTo] = useState('')
+  const [valueSearch, setValueSearch] = useState({ name: '', symbol: '' })
+  const [errorValue, setErrorValue] = useState('No results found.')
 
   const isConnected = useSelector((state) => state.connect.connected)
   const dispatch = useDispatch()
@@ -61,32 +62,31 @@ const Swap = () => {
     dispatch(connect(signerAddress))
   }
 
-  useEffect(() => {
-    const getTokenData = async () => {
-      try {
-        const response = await axios.get('https://tokens.coingecko.com/uniswap/all.json');
-        setTokenData(response.data.tokens)
-        setListTokenSearch(response.data.tokens)
-      }
-      catch (error) {
-        console.log(error);
-      }
-    }
+  // useEffect(() => {
+  //   const getTokenData = async () => {
+  //     try {
+  //       const response = await axios.get('https://tokens.coingecko.com/uniswap/all.json');
+  //       setTokenData(response.data.tokens)
+  //       setListTokenSearch(response.data.tokens)
+  //     }
+  //     catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
 
-    getTokenData()
-  }, [])
+  //   getTokenData()
+  // }, [])
 
   const boxSelect = (side) => {
     setSide(side)
   }
 
-  const selectToken = (token) => {
-    setListTokenSearch(tokenData)
+  const selectToken = (symbol) => {
     if (side === 'from') {
-      setCurrentTradeFrom(token)
+      setCurrentTradeFrom(symbol)
     }
     if (side === 'to') {
-      setCurrentTradeTo(token)
+      setCurrentTradeTo(symbol)
     }
     document.getElementById('searchInputToken').value = ''
   }
@@ -141,7 +141,6 @@ const Swap = () => {
   }
 
   const trySwap = async () => {
-    const erc20abi= [{ "inputs": [ { "internalType": "string", "name": "name", "type": "string" }, { "internalType": "string", "name": "symbol", "type": "string" }, { "internalType": "uint256", "name": "max_supply", "type": "uint256" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" } ], "name": "allowance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "approve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" } ], "name": "balanceOf", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "burn", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "burnFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [ { "internalType": "uint8", "name": "", "type": "uint8" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "subtractedValue", "type": "uint256" } ], "name": "decreaseAllowance", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "addedValue", "type": "uint256" } ], "name": "increaseAllowance", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "name", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transfer", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" } ], "name": "transferFrom", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }]
   
     // Only work if MetaMask is connect
     // Connecting to Ethereum: Metamask
@@ -152,37 +151,58 @@ const Swap = () => {
     let takerAddress = accounts[0];
     // console.log(takerAddress)
 
-     console.log(await web3.eth.net.getId())
+    //  console.log(await web3.eth.net.getId())
   
     const swapQuoteJSON = await getQuote(takerAddress);
-    console.log(swapQuoteJSON)
+    // console.log(swapQuoteJSON)
     // Set Token Allowance
     // Set up approval amount
     // const fromTokenAddress = currentTradeFrom.address;
     // const maxApproval = new BigNumber(2).pow(256).minus(1);
-    const ERC20TokenContract = new web3.eth.Contract(erc20abi, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48');
-    const a = await ERC20TokenContract.methods.balanceOf('0x8fF7a8Bc989ed1c9038c5b2e8861133d24788fE4').call()
+    const ERC20TokenContract = new web3.eth.Contract(erc20abi, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2');
+    const a = await ERC20TokenContract.methods.symbol().call()
     console.log(a);
     // Grant the allowance target an allowance to spend our tokens.
-    const tx = await ERC20TokenContract.methods.transfer(
-        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        '10000',
-    )
-    .send({ from: takerAddress })
-    .then(tx => {
-        console.log("tx: ", tx)
-    });
+    // const tx = await ERC20TokenContract.methods.transfer(
+    //     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    //     '10000',
+    // )
+    // .send({ from: takerAddress })
+    // .then(tx => {
+    //     console.log("tx: ", tx)
+    // });
   }
-  
   // Search Token
-  const handleChangeSearchInput = (e) => {
-    const timer = setTimeout(() => {
-      const tokenFilter = tokenData.filter((token) => token.symbol.toLowerCase().includes(e.target.value.trim().toLowerCase()) || token.name.toLowerCase().includes(e.target.value.trim().toLowerCase()))
-      setListTokenSearch(tokenFilter)
-    }, 300)
+  const handleChangeSearchInput = async (e) => {
+    const web3 = new Web3(Web3.givenProvider);
+    try {
+      const ERC20TokenContract = new web3.eth.Contract(erc20abi, e.target.value);
+      const getSymbol = await ERC20TokenContract.methods.symbol().call()
+      const getName = await ERC20TokenContract.methods.name().call()
+      setValueSearch({
+        name: getName,
+        symbol: getSymbol
+      })
 
-    return timer
+    } catch (error) {
+      setValueSearch({
+        name: '',
+        symbol: ''
+      })
+      setErrorValue('No results found.')
+    }
   }
+
+  // reset input search
+  const valueSearchInputEl = document.getElementById('searchInputToken')?.value
+  useEffect(() => {  
+    if (!valueSearchInputEl ) {
+      setValueSearch({
+        name: '',
+        symbol: ''
+      })
+    }
+  }, [valueSearchInputEl])
 
   return (
     <div className="swap">
@@ -212,8 +232,8 @@ const Swap = () => {
               ? 
               (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <img style={{ borderRadius: '50%', marginRight: 7, width: 24, height: 24 }} src={currentTradeFrom.logoURI} alt={currentTradeFrom.symbol} />
-                  <span style={{ marginRight: 20 }}>{currentTradeFrom.symbol}</span>
+                  {/* <img style={{ borderRadius: '50%', marginRight: 7, width: 24, height: 24 }} src={currentTradeFrom.logoURI} alt={currentTradeFrom.symbol} /> */}
+                  <span style={{ marginRight: 20 }}>{currentTradeFrom}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-caret-down" viewBox="0 0 16 16">
                     <path d="M3.204 5h9.592L8 10.481 3.204 5zm-.753.659 4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659z"/>
                   </svg>
@@ -232,8 +252,8 @@ const Swap = () => {
                 ? 
                 (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img style={{ borderRadius: '50%', marginRight: 7, width: 24, height: 24 }} src={currentTradeTo.logoURI} alt={currentTradeTo.symbol} />
-                    <span style={{ marginRight: 20 }}>{currentTradeTo.symbol}</span>
+                    {/* <img style={{ borderRadius: '50%', marginRight: 7, width: 24, height: 24 }} src={currentTradeTo.logoURI} alt={currentTradeTo.symbol} /> */}
+                    <span style={{ marginRight: 20 }}>{currentTradeTo}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-caret-down" viewBox="0 0 16 16">
                       <path d="M3.204 5h9.592L8 10.481 3.204 5zm-.753.659 4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659z"/>
                     </svg>
@@ -272,20 +292,22 @@ const Swap = () => {
                 </button>
               </div>
               <div className="input-group flex-nowrap" style={{ width: '80%', margin: '0 auto 20px' }}>
-                <input id='searchInputToken' onChange={(e) => handleChangeSearchInput(e)} type="text" className="form-control" placeholder="Search name token" aria-label="Tokenname" aria-describedby="addon-wrapping" />
+                <input id='searchInputToken' onChange={(e) => handleChangeSearchInput(e)} type="text" className="form-control" placeholder="Search token with address" aria-label="Tokenname" aria-describedby="addon-wrapping" />
               </div>
               <div className="modal-body2">
                 {
-                  listTokenSearch &&
-                  listTokenSearch.map((token, i) => (
-                    <div onClick={() => selectToken(token)} key={token.logoURI} className='containerToken' data-dismiss="modal" aria-label="Close">
-                      <img className='tokenImg' src={token.logoURI} alt={token.symbol} />
-                      <div className='wrapName'>
-                        <h3 className='tokenName'>{token.name}</h3>
-                        <p className='tokenSymbol'>{token.symbol}</p>
+                  valueSearch.symbol
+                    ? 
+                    (
+                      <div onClick={() => selectToken(valueSearch.symbol)} className='containerToken' data-dismiss="modal" aria-label="Close">
+                        {/* <img className='tokenImg' src={token.logoURI} alt={token.symbol} /> */}
+                        <div className='wrapName'>
+                          <h3 className='tokenName'>{valueSearch.name}</h3>
+                          <p className='tokenSymbol'>{valueSearch.symbol}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                    : <span style={{ color: 'red' }}>{errorValue}</span>
                 }
               </div>
             </div>
