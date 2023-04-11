@@ -5,7 +5,6 @@ button {
 
 .swap {
     text-align: center;
-    background-color: #e3eef3;
 }
 
 /******************************************************************************/
@@ -127,11 +126,6 @@ button {
 .tokenContainer {
   text-align: right;
 }
-/* .tokenName {
-  font-size: 28px;
-  display: block;
-  color: #000;
-} */
 .balanceContainer {
   display: block;
 }
@@ -175,6 +169,17 @@ input[type=number] {
   border-radius: 20px;
   background-color: #dd2f81;
   cursor: pointer
+}
+
+.btnDisable {
+  width: 100%;
+  height: 55px;
+  line-height: 55px;
+  font-size: 24px;
+  color: #fff;
+  border-radius: 20px;
+  background-color: #ccc;
+  cursor: default;
 }
 
 .swapButton:hover {
@@ -246,6 +251,7 @@ input[type=number] {
   padding: 20px;
   border-radius: 20px;
 }
+
 .token_select{
   width: 150px;
   background-color: #dd2f81;
@@ -254,6 +260,18 @@ input[type=number] {
   float: right;
   border-radius: 10px;
   color: #fff;
+}
+
+.selectDisable {
+  width: 50%;
+  float: left;
+  background-color: #ccc;
+  cursor: default;
+  width: 150px;
+  padding:5px 0;
+  margin: 0 20px;
+  float: right;
+  border-radius: 10px;
 }
 
 .token_selected{

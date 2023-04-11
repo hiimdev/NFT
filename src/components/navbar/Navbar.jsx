@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 import ConnectButton from '../ConnectButton';
 import { ethers } from 'ethers'
 import { useSelector, useDispatch } from 'react-redux'
-import { connect } from '../../redux/connectSlice';
+import { connect, balance as bal, network as net } from '../../redux/connectSlice';
 import web3 from 'web3';
 
 const drawerWidth = 240;
@@ -37,6 +37,7 @@ const Navbar = (props) => {
 
   const isConnected = useSelector((state) => state.connect.connected)
   const address = useSelector((state) => state.connect.address)
+  const network = useSelector((state) => state.connect.network)
   const dispatch = useDispatch()
 
   const handleDrawerToggle = () => {
@@ -84,7 +85,6 @@ const Navbar = (props) => {
     },
   }));
 
-  const [network, setNetwork] = React.useState('Ethereum');
   // const container = window !== undefined ? () => window().document.body : undefined;
 
   useEffect(() => {
@@ -123,21 +123,23 @@ const Navbar = (props) => {
 
     // Chuyển đổi đơn vị từ wei sang ether và cập nhật state
     setBalance(Web3.utils.fromWei(balance, 'ether'));
-  };
+    dispatch(bal(balance))
 
+  };
+  
   const getNetWork = async () => {
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
     if (chainId === '0x1') {
-      setNetwork('Ethereum')
+      dispatch(net(true))
     } else {
-      setNetwork('Wrong network')
+      dispatch(net(false))
     }
-
+    
     window.ethereum.on('chainChanged', (chainId) => {
       if (chainId === '0x1') {
-        setNetwork('Ethereum')
+        dispatch(net(true))
       } else {
-        setNetwork('Wrong network')
+        dispatch(net(false))
       }
     });
   }
@@ -154,6 +156,7 @@ const Navbar = (props) => {
     getBalance()
     getNetWork()
     dispatch(connect(signerAddress))
+    dispatch(bal(balance))
   }
 
   const drawer = (
@@ -219,7 +222,7 @@ const Navbar = (props) => {
             />
           </Search>
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
-              <span className='netWork'>{network}</span>
+              <span className='netWork'>{network ? 'Ethereum' : 'Wrong network'}</span>
               <ConnectButton
               provider={provider}
               isConnected={isConnected}
