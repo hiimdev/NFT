@@ -137,29 +137,27 @@ const Swap = () => {
     } 
   }
 
-  // const getQuote = async (account) => {
-  //   if (!tokenFrom || !tokenTo || !document.getElementById("from_amount").value) return;
-  //   let amount = Number(valueFrom * 10 ** decimalsFrom);
+  const getQuote = async (account) => {
+    if (!tokenFrom || !tokenTo || !document.getElementById("from_amount").value) return;
+    let amount = Number(valueFrom * 10 ** decimalsFrom);
   
-  //   const params = {
-  //     buyToken: addressTo,
-  //     sellToken: addressFrom,
-  //     sellAmount: amount,
-  //     takerAddress: account,
-  //   }
+    const params = {
+      buyToken: addressTo,
+      sellToken: addressFrom,
+      sellAmount: amount,
+      takerAddress: account,
+    }
   
-  //   // Fetch the swap quote.
-  //     const response = await axios.get(`https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`);
-  //     const swapQuoteJSON = response.data;
-  //     console.log(response)
-  //     setQuote(swapQuoteJSON.buyAmount / (10 ** decimalsTo))
-  //     setValueGas(swapQuoteJSON.estimatedGas)
+    // Fetch the swap quote.
+      const response = await axios.get(`https://api.0x.org/swap/v1/quote?${qs.stringify(params)}`);
+      const swapQuoteJSON = response.data;
+      // setQuote(swapQuoteJSON.buyAmount / (10 ** decimalsTo))
+      setValueGas(swapQuoteJSON.estimatedGas)
     
-  //     return swapQuoteJSON
-  // }
+      return swapQuoteJSON
+  }
 
   const trySwap = async () => {
-  
     // Only work if MetaMask is connect
     // Connecting to Ethereum: Metamask
     const web3 = new Web3(Web3.givenProvider);
@@ -167,12 +165,9 @@ const Swap = () => {
     // The address, if any, of the most recently used account that the caller is permitted to access
     let accounts = await window.ethereum.request({ method: "eth_accounts" });
     let takerAddress = accounts[0];
-    // console.log(takerAddress)
-
-    //  console.log(await web3.eth.net.getId())
   
-    // const swapQuoteJSON = await getQuote(takerAddress);
-    // console.log(swapQuoteJSON)
+    const swapQuoteJSON = await getQuote(takerAddress);
+    
     // Set Token Allowance
     // Set up approval amount
     // const fromTokenAddress = currentTradeFrom.address;
@@ -181,13 +176,17 @@ const Swap = () => {
     const ERC20TokenContract = new web3.eth.Contract(erc20abi, addressFrom);
     // Grant the allowance target an allowance to spend our tokens.
     const tx = await ERC20TokenContract.methods.approve(
-        addressTo,
+        swapQuoteJSON.allowanceTarget,
         maxApproval,
     )
     .send({ from: takerAddress })
     .then(tx => {
         console.log("tx: ", tx)
     });
+
+    // Perform the swap
+    const receipt = await web3.eth.sendTransaction(swapQuoteJSON);
+    console.log("receipt: ", receipt);
   }
 
   // Search Token
@@ -359,6 +358,19 @@ const Swap = () => {
               </button>
             )
             }
+           
+            {/* {
+              isConnected
+              &&
+              (
+                <button
+                onClick={() => trySwap()}
+                className="swapButton"
+              >
+                Swap
+              </button>
+            )
+            } */}
           </div>
         </div>
         <div className="modal fade" id="modalSelectToken" tabIndex="-1" role="dialog" aria-labelledby="modalSelectTokenLabel" aria-hidden="true">
